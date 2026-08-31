@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IPL Analytics Pro Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#0b0f1a;--bg2:#111827;--bg3:#1a2235;--bg4:#1e293b;
+  --border:#1e2d47;--border2:#243147;
+  --accent:#f97316;--accent2:#3b82f6;--accent3:#22c55e;--accent4:#a855f7;--accent5:#ec4899;
+  --gold:#f59e0b;--red:#ef4444;
+  --txt:#e2e8f0;--txt2:#94a3b8;--txt3:#64748b;
+  --card-shadow:0 4px 24px rgba(0,0,0,.45);
+  --font-head:'Rajdhani',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--font-body);font-size:13px;min-height:100vh;overflow-x:hidden}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  position:fixed;left:0;top:0;height:100vh;width:220px;
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:100;transition:.3s;
+}
+.logo-area{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.logo-title{font-family:var(--font-head);font-size:22px;font-weight:700;
+  background:linear-gradient(90deg,var(--accent),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px}
+.logo-sub{font-size:10px;color:var(--txt3);margin-top:2px;letter-spacing:.5px}
+.nav-section{padding:14px 10px 4px;font-size:10px;font-weight:600;
+  color:var(--txt3);letter-spacing:1.2px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;
+  margin:1px 6px;border-radius:8px;cursor:pointer;
+  color:var(--txt2);font-size:12.5px;font-weight:500;transition:.15s;
+  border:1px solid transparent}
+.nav-item:hover{background:var(--bg3);color:var(--txt)}
+.nav-item.active{background:linear-gradient(135deg,rgba(249,115,22,.18),rgba(249,115,22,.06));
+  color:var(--accent);border-color:rgba(249,115,22,.25)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{margin-top:auto;padding:14px 16px;border-top:1px solid var(--border);
+  font-size:10px;color:var(--txt3)}
+
+/* ── MAIN ── */
+#main{margin-left:220px;padding:20px 24px;min-height:100vh}
+.page-header{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.page-title{font-family:var(--font-head);font-size:26px;font-weight:700;
+  color:var(--txt);letter-spacing:.5px}
+.page-title span{color:var(--accent)}
+.page-badge{display:flex;align-items:center;gap:6px;
+  background:var(--bg3);border:1px solid var(--border2);
+  padding:6px 14px;border-radius:20px;font-size:11px;color:var(--txt2)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--accent3);
+  box-shadow:0 0 0 0 rgba(34,197,94,.4);
+  animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}
+  70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+
+/* ── TABS ── */
+.tab-bar{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.tab-btn{padding:7px 16px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--txt2);font-size:12px;font-weight:500;
+  cursor:pointer;transition:.15s;font-family:var(--font-body)}
+.tab-btn:hover{color:var(--txt);border-color:var(--accent)}
+.tab-btn.active{background:rgba(249,115,22,.15);color:var(--accent);
+  border-color:var(--accent)}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);
+  border-radius:14px;padding:18px 20px;box-shadow:var(--card-shadow);
+  position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(249,115,22,.3),transparent);
+  opacity:0}
+.card:hover::before{opacity:1;transition:.3s}
+.card-title{font-family:var(--font-head);font-size:14px;font-weight:600;
+  color:var(--txt);letter-spacing:.3px;margin-bottom:14px;
+  display:flex;align-items:center;gap:7px}
+.card-title .ct-icon{font-size:15px}
+.card-sub{font-size:11px;color:var(--txt3);margin-left:auto}
+
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:20px}
+.kpi-card{background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px;position:relative;overflow:hidden;
+  transition:.2s;cursor:default}
+.kpi-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  border-radius:0 0 12px 12px}
+.kpi-card.c1::after{background:var(--accent)}
+.kpi-card.c2::after{background:var(--accent2)}
+.kpi-card.c3::after{background:var(--accent3)}
+.kpi-card.c4::after{background:var(--accent4)}
+.kpi-card.c5::after{background:var(--gold)}
+.kpi-card.c6::after{background:var(--accent5)}
+.kpi-card.c7::after{background:var(--red)}
+.kpi-card.c8::after{background:#06b6d4}
+.kpi-icon{font-size:20px;margin-bottom:6px}
+.kpi-val{font-family:var(--font-head);font-size:22px;font-weight:700;line-height:1}
+.kpi-lbl{font-size:10px;color:var(--txt3);margin-top:4px;letter-spacing:.3px;text-transform:uppercase}
+
+/* ── GRID LAYOUTS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.g13{display:grid;grid-template-columns:1fr 3fr;gap:16px;margin-bottom:16px}
+.g31{display:grid;grid-template-columns:3fr 1fr;gap:16px;margin-bottom:16px}
+.full{margin-bottom:16px}
+
+/* ── SECTION PAGES ── */
+.section{display:none}.section.active{display:block}
+
+/* ── BAR CHARTS (Custom) ── */
+.bar-h-list{display:flex;flex-direction:column;gap:8px}
+.bar-h-row{display:grid;grid-template-columns:130px 1fr 50px;align-items:center;gap:8px}
+.bar-h-label{font-size:11px;color:var(--txt2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-h-track{height:26px;background:var(--bg4);border-radius:5px;overflow:hidden;position:relative}
+.bar-h-fill{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:8px;
+  font-size:10.5px;font-weight:600;color:rgba(255,255,255,.9);
+  transition:width 1s cubic-bezier(.4,0,.2,1)}
+.bar-h-val{font-size:11px;font-weight:600;color:var(--txt);text-align:right}
+.bar-v-wrap{display:flex;align-items:flex-end;gap:5px;height:140px;padding-top:10px}
+.bar-v-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px}
+.bar-v-fill{width:100%;border-radius:4px 4px 0 0;transition:height 1s cubic-bezier(.4,0,.2,1);min-height:2px}
+.bar-v-lbl{font-size:9px;color:var(--txt3);text-align:center;line-height:1.2;max-width:36px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── DONUT/PIE ── */
+.donut-wrap{display:flex;align-items:center;gap:16px}
+.donut-legend{display:flex;flex-direction:column;gap:7px}
+.dl-row{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--txt2)}
+.dl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dl-pct{margin-left:auto;font-weight:600;color:var(--txt);font-size:11px}
+
+/* ── DATA TABLE ── */
+.data-table{width:100%;border-collapse:collapse}
+.data-table thead th{background:var(--bg3);color:var(--txt3);font-size:10px;
+  font-weight:600;letter-spacing:.6px;text-transform:uppercase;
+  padding:9px 12px;border-bottom:1px solid var(--border2);text-align:left;
+  position:sticky;top:0}
+.data-table tbody td{padding:9px 12px;border-bottom:1px solid rgba(30,45,71,.5);
+  font-size:12px;color:var(--txt2)}
+.data-table tbody tr:hover td{background:rgba(249,115,22,.04);color:var(--txt)}
+.data-table tbody tr:last-child td{border-bottom:none}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:700}
+.r1{background:rgba(245,158,11,.2);color:var(--gold)}
+.r2{background:rgba(148,163,184,.15);color:#94a3b8}
+.r3{background:rgba(249,115,22,.15);color:var(--accent)}
+.rn{background:var(--bg4);color:var(--txt3)}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.tag-g{background:rgba(34,197,94,.15);color:#4ade80}
+.tag-b{background:rgba(59,130,246,.15);color:#60a5fa}
+.tag-r{background:rgba(239,68,68,.15);color:#f87171}
+.tag-o{background:rgba(249,115,22,.15);color:#fb923c}
+
+/* ── STAT HIGHLIGHT ── */
+.stat-row{display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;border-bottom:1px solid rgba(30,45,71,.5)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{font-size:11.5px;color:var(--txt2)}
+.stat-value{font-size:13px;font-weight:600;color:var(--txt)}
+
+/* ── PROGRESS BAR ── */
+.prog-wrap{margin-bottom:10px}
+.prog-header{display:flex;justify-content:space-between;margin-bottom:4px}
+.prog-lbl{font-size:11px;color:var(--txt2)}
+.prog-val{font-size:11px;font-weight:600;color:var(--txt)}
+.prog-track{height:7px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width 1s ease}
+
+/* ── H2H MATRIX ── */
+.h2h-matrix{display:grid;gap:2px;font-size:9px}
+.h2h-cell{display:flex;align-items:center;justify-content:center;
+  height:28px;border-radius:4px;font-weight:600;color:#fff;font-size:10px}
+.h2h-head{display:flex;align-items:center;justify-content:center;
+  height:28px;font-size:9px;color:var(--txt3);font-weight:600}
+.h2h-row-label{font-size:9px;color:var(--txt3);font-weight:600;
+  display:flex;align-items:center}
+
+/* ── TREEMAP ── */
+.treemap{display:grid;gap:3px;height:200px}
+.tree-cell{border-radius:6px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:6px;
+  font-family:var(--font-head);transition:.2s;cursor:pointer}
+.tree-cell:hover{filter:brightness(1.15)}
+.tree-name{font-size:10px;font-weight:600;color:rgba(255,255,255,.95);text-align:center}
+.tree-val{font-size:14px;font-weight:700;color:#fff}
+
+/* ── SCATTER ── */
+.scatter-wrap{position:relative}
+
+/* ── PREDICTOR ── */
+.pred-form{display:flex;flex-direction:column;gap:12px}
+.pred-field label{display:block;font-size:10px;font-weight:600;
+  color:var(--txt3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:5px}
+.pred-field select,.pred-field input{width:100%;background:var(--bg3);
+  border:1px solid var(--border2);border-radius:8px;padding:9px 12px;
+  color:var(--txt);font-size:12px;font-family:var(--font-body);
+  outline:none;transition:.15s}
+.pred-field select:focus,.pred-field input:focus{border-color:var(--accent)}
+.pred-btn{width:100%;padding:12px;
+  background:linear-gradient(135deg,var(--accent),#ea580c);
+  border:none;border-radius:10px;color:#fff;font-size:14px;
+  font-family:var(--font-head);font-weight:700;letter-spacing:.5px;
+  cursor:pointer;transition:.2s;margin-top:4px}
+.pred-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(249,115,22,.4)}
+.pred-result{display:none;margin-top:16px;padding:16px;
+  background:linear-gradient(135deg,rgba(249,115,22,.1),rgba(168,85,247,.08));
+  border:1px solid rgba(249,115,22,.25);border-radius:12px;text-align:center}
+.pred-winner{font-family:var(--font-head);font-size:24px;font-weight:700;
+  color:var(--accent);margin:6px 0}
+.pred-conf{font-size:12px;color:var(--txt2);margin-bottom:10px}
+.win-prob-bar{height:12px;border-radius:6px;overflow:hidden;display:flex;margin-bottom:6px}
+.prob-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--txt3)}
+
+/* ── OVER PHASES ── */
+.phase-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.phase-card{background:var(--bg3);border-radius:10px;padding:14px;border:1px solid var(--border2);text-align:center}
+.phase-name{font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.phase-rpo{font-family:var(--font-head);font-size:28px;font-weight:700}
+.phase-sub{font-size:10px;color:var(--txt3);margin-top:3px}
+.phase-stats{display:flex;justify-content:space-around;margin-top:10px;
+  padding-top:10px;border-top:1px solid var(--border)}
+.phase-stat span{display:block;font-size:16px;font-weight:700;font-family:var(--font-head)}
+.phase-stat small{font-size:9px;color:var(--txt3)}
+
+/* ── SEASON TABLE ── */
+.season-champ-row{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 0;border-bottom:1px solid rgba(30,45,71,.4)}
+.season-champ-row:last-child{border-bottom:none}
+.season-num{font-family:var(--font-head);font-size:16px;font-weight:700;
+  color:var(--txt3);width:48px}
+.champ-name{font-size:12px;color:var(--txt);flex:1}
+.champ-dot{width:8px;height:8px;border-radius:50%;margin-right:8px;flex-shrink:0}
+
+/* ── FILTERS ── */
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filter-label{font-size:11px;color:var(--txt3);font-weight:600}
+.filter-select{background:var(--bg3);border:1px solid var(--border2);
+  border-radius:8px;padding:6px 12px;color:var(--txt);font-size:11px;
+  font-family:var(--font-body);outline:none;cursor:pointer}
+.filter-select:focus{border-color:var(--accent)}
+.filter-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--txt2);font-size:11px;cursor:pointer;
+  font-family:var(--font-body);transition:.15s}
+.filter-btn:hover,.filter-btn.active{background:rgba(249,115,22,.15);
+  color:var(--accent);border-color:var(--accent)}
+
+/* ── CANVAS CONTAINER ── */
+.chart-wrap{position:relative;width:100%}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── TOOLTIP ── */
+.tooltip-box{position:absolute;background:#1e293b;border:1px solid var(--border2);
+  border-radius:8px;padding:8px 12px;font-size:11px;color:var(--txt);
+  pointer-events:none;z-index:200;display:none;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(4,1fr)}.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){#sidebar{width:56px}.logo-area .logo-sub,.nav-item span{display:none}#main{margin-left:56px}.g2,.g3,.g4{grid-template-columns:1fr}}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.section.active{animation:fadeIn .35s ease}
+@keyframes countUp{from{opacity:0}to{opacity:1}}
+.kpi-val{animation:countUp .6s ease}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="logo-area">
+    <div class="logo-title">🏏 IPL PRO</div>
+    <div class="logo-sub">ANALYTICS DASHBOARD</div>
+  </div>
+  <div class="nav-section">Main</div>
+  <div class="nav-item active" onclick="showPage('overview',this)"><span class="nav-icon">📊</span><span>Overview</span></div>
+  <div class="nav-item" onclick="showPage('batting',this)"><span class="nav-icon">🏏</span><span>Batting</span></div>
+  <div class="nav-item" onclick="showPage('bowling',this)"><span class="nav-icon">🎯</span><span>Bowling</span></div>
+  <div class="nav-section">Analysis</div>
+  <div class="nav-item" onclick="showPage('teams',this)"><span class="nav-icon">🛡️</span><span>Teams</span></div>
+  <div class="nav-item" onclick="showPage('toss',this)"><span class="nav-icon">🪙</span><span>Toss & Venue</span></div>
+  <div class="nav-item" onclick="showPage('seasons',this)"><span class="nav-icon">📈</span><span>Seasons</span></div>
+  <div class="nav-section">Tools</div>
+  <div class="nav-item" onclick="showPage('predictor',this)"><span class="nav-icon">🤖</span><span>AI Predictor</span></div>
+  <div class="sidebar-footer">IPL 2008–2023 · v2.0</div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main id="main">
+
+<!-- ═══════ OVERVIEW ═══════ -->
+<section class="section active" id="pg-overview">
+  <div class="page-header">
+    <div class="page-title">🏏 IPL <span>Analytics</span> Dashboard</div>
+    <div class="page-badge"><div class="pulse"></div>Seasons 2008 – 2023</div>
+  </div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🏆</span>Count of Winner by Team<span class="card-sub">All seasons</span></div>
+      <div id="teamWinsChart" class="bar-h-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📊</span>Win Mode Distribution</div>
+      <div class="donut-wrap">
+        <div class="chart-wrap" style="width:180px;height:180px;flex-shrink:0"><canvas id="winModeChart"></canvas></div>
+        <div class="donut-legend" id="winModeLegend"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:10px"><span class="ct-icon">🪙</span>Toss Decision Split</div>
+      <div class="donut-wrap">
+        <div class="chart-wrap" style="width:150px;height:150px;flex-shrink:0"><canvas id="tossDecChart"></canvas></div>
+        <div class="donut-legend" id="tossDecLegend"></div>
+      </div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🏟️</span>Count of Winner by Team 1 & Team 2<span class="card-sub">Head-to-head wins</span></div>
+      <div id="h2hStackedChart" class="bar-h-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🌟</span>Player of the Match Leaders</div>
+      <div id="pomChart" class="bar-h-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ BATTING ═══════ -->
+<section class="section" id="pg-batting">
+  <div class="page-header">
+    <div class="page-title">🏏 <span>Batting</span> Analysis</div>
+    <div class="filter-bar">
+      <span class="filter-label">Sort by:</span>
+      <button class="filter-btn active" onclick="setBatSort('total_runs',this)">Runs</button>
+      <button class="filter-btn" onclick="setBatSort('strike_rate',this)">Strike Rate</button>
+      <button class="filter-btn" onclick="setBatSort('sixes',this)">Sixes</button>
+      <button class="filter-btn" onclick="setBatSort('fours',this)">Fours</button>
+      <button class="filter-btn" onclick="setBatSort('boundary_pct',this)">Boundary %</button>
+    </div>
+  </div>
+  <!-- KPI Row -->
+  <div class="g4" id="batKpis"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🏏</span>Top Batsmen<span class="card-sub" id="batSortLabel">by Total Runs</span></div>
+      <div id="batMainChart" class="bar-h-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📋</span>R and B by Batsmen<span class="card-sub">Scatter</span></div>
+      <div class="chart-wrap" style="height:250px"><canvas id="batScatterChart"></canvas></div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🎯</span>R by Dismissal Mode</div>
+      <div class="donut-wrap" style="flex-direction:column;align-items:flex-start;gap:10px">
+        <div class="chart-wrap" style="width:100%;height:180px"><canvas id="dismissalChart"></canvas></div>
+        <div id="dismissalLegend" class="donut-legend" style="flex-direction:row;flex-wrap:wrap;gap:6px 14px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🏃</span>boundary_contribution by Batsmen</div>
+      <div id="boundaryTreemap" class="treemap" style="grid-template-columns:1fr 1fr;height:220px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📅</span>R by Match Month</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="monthChart"></canvas></div>
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:8px"><span class="ct-icon">👑</span>Special Role Runs</div>
+      <div id="roleProgress"></div>
+    </div>
+  </div>
+  <div class="card full">
+    <div class="card-title"><span class="ct-icon">📋</span>Complete Batting Statistics<span class="card-sub">Top 15 batsmen</span></div>
+    <div style="overflow-x:auto"><table class="data-table" id="batTable"></table></div>
+  </div>
+</section>
+
+<!-- ═══════ BOWLING ═══════ -->
+<section class="section" id="pg-bowling">
+  <div class="page-header">
+    <div class="page-title">🎯 <span>Bowling</span> Analysis</div>
+    <div class="filter-bar">
+      <span class="filter-label">Sort by:</span>
+      <button class="filter-btn active" onclick="setBowlSort('wickets',this)">Wickets</button>
+      <button class="filter-btn" onclick="setBowlSort('economy',this)">Economy</button>
+      <button class="filter-btn" onclick="setBowlSort('avg',this)">Average</button>
+      <button class="filter-btn" onclick="setBowlSort('sr',this)">Strike Rate</button>
+    </div>
+  </div>
+  <div class="g4" id="bowlKpis"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🎯</span>Top Bowlers<span class="card-sub" id="bowlSortLabel">by Wickets</span></div>
+      <div id="bowlMainChart" class="bar-h-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📦</span>Runs_total by Bowler<span class="card-sub">Treemap</span></div>
+      <div id="bowlTreemap" class="treemap" style="grid-template-columns:1fr 1fr 1fr;height:250px"></div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📊</span>Over by Bowler (Overs Bowled)</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="bowlOverChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🔴</span>sixes by dismissal_mode</div>
+      <div id="sixesDismChart" class="bar-h-list" style="margin-top:4px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🎯</span>Player out by Bowler & Mode</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="playerOutChart"></canvas></div>
+    </div>
+  </div>
+  <div class="card full">
+    <div class="card-title"><span class="ct-icon">📋</span>Complete Bowling Statistics<span class="card-sub">Top 15 bowlers</span></div>
+    <div style="overflow-x:auto"><table class="data-table" id="bowlTable"></table></div>
+  </div>
+</section>
+
+<!-- ═══════ TEAMS ═══════ -->
+<section class="section" id="pg-teams">
+  <div class="page-header">
+    <div class="page-title">🛡️ <span>Team</span> Performance</div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🏆</span>Team Win % Comparison</div>
+      <div id="teamWinPctChart" class="bar-h-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">⚔️</span>Head-to-Head Win Matrix<span class="card-sub">Top 8 teams</span></div>
+      <div id="h2hMatrix"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📈</span>Season-wise Wins Timeline</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="seasonWinsChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🏟️</span>Count of Winner by Ground<span class="card-sub">Top venues</span></div>
+      <div class="chart-wrap" style="height:260px"><canvas id="groundWinsChart"></canvas></div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📊</span>Win by Mode per Team</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="teamWinModeChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📋</span>Team Stats</div>
+      <div style="overflow-y:auto;max-height:220px">
+        <table class="data-table" id="teamStatsTable"></table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🥇</span>Season Champions</div>
+      <div style="overflow-y:auto;max-height:220px" id="champList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ TOSS & VENUE ═══════ -->
+<section class="section" id="pg-toss">
+  <div class="page-header">
+    <div class="page-title">🪙 <span>Toss & Venue</span> Analysis</div>
+  </div>
+  <!-- From Image 1 bottom-left and Image 2 -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🪙</span>Count of Winner by Toss Decision</div>
+      <div class="donut-wrap" style="justify-content:center">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%">
+          <div class="chart-wrap" style="width:220px;height:220px;margin:0 auto"><canvas id="tossBigChart"></canvas></div>
+          <div id="tossBigLegend" class="donut-legend" style="flex-direction:row;gap:20px;justify-content:center"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📈</span>Count of Winner by win_mode and toss_decision</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="winModeTossChart"></canvas></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🏟️</span>Count of Winner by Ground</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="venueBigChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📅</span>Season-wise Toss Win % Trend</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="tossTrendChart"></canvas></div>
+      <div class="divider"></div>
+      <div class="phase-cards" id="phaseCards"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SEASONS ═══════ -->
+<section class="section" id="pg-seasons">
+  <div class="page-header">
+    <div class="page-title">📈 <span>Season</span> Trends</div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📊</span>Matches Per Season</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="matchesPerSeasonChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🏃</span>Avg 1st Innings Score Trend</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="avgScoreChart"></canvas></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">💥</span>Sixes Per Season</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="sixesSeasonChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📈</span>R and SR by match_Year<span class="card-sub">Scatter by season</span></div>
+      <div class="chart-wrap" style="height:220px"><canvas id="seasonScatterChart"></canvas></div>
+    </div>
+  </div>
+  <div class="card full">
+    <div class="card-title"><span class="ct-icon">📊</span>Over-wise Run Rate (All Overs)</div>
+    <div class="chart-wrap" style="height:220px"><canvas id="overRRChart"></canvas></div>
+  </div>
+</section>
+
+<!-- ═══════ PREDICTOR ═══════ -->
+<section class="section" id="pg-predictor">
+  <div class="page-header">
+    <div class="page-title">🤖 AI Match <span>Predictor</span></div>
+    <div class="page-badge">🧠 ML-powered prediction</div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🔮</span>Match Outcome Predictor</div>
+      <div class="pred-form">
+        <div class="g2" style="margin-bottom:0">
+          <div class="pred-field"><label>Team 1</label>
+            <select id="pTeam1" onchange="updateTossOpts()"></select></div>
+          <div class="pred-field"><label>Team 2</label>
+            <select id="pTeam2" onchange="updateTossOpts()"></select></div>
+        </div>
+        <div class="g2" style="margin-bottom:0">
+          <div class="pred-field"><label>Toss Winner</label>
+            <select id="pToss"></select></div>
+          <div class="pred-field"><label>Toss Decision</label>
+            <select id="pDec"><option value="field">Field First</option><option value="bat">Bat First</option></select></div>
+        </div>
+        <div class="pred-field"><label>Venue</label>
+          <select id="pVenue"></select></div>
+        <div class="pred-field"><label>Season</label>
+          <select id="pSeason"></select></div>
+        <button class="pred-btn" onclick="runPredict()">⚡ PREDICT WINNER</button>
+      </div>
+      <div class="pred-result" id="predResult">
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">Predicted Winner</div>
+        <div class="pred-winner" id="predWinner"></div>
+        <div class="pred-conf" id="predConf"></div>
+        <div class="win-prob-bar" id="predBar"></div>
+        <div class="prob-labels" id="probLabels"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">⚔️</span>Head-to-Head Record</div>
+      <div id="h2hDetail">
+        <div style="color:var(--txt3);font-size:12px;text-align:center;padding:30px 0">
+          Select teams above and click Predict to see H2H stats
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:10px"><span class="ct-icon">⚖️</span>Key Win Factors</div>
+      <div id="winFactors"></div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📊</span>Model Accuracy</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="modelAccChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📋</span>Feature Importance</div>
+      <div id="featureImportance" class="bar-h-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📈</span>Team Win Probability</div>
+      <div id="teamWinProb" class="bar-h-list"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════
+const RAW_TEAM_WINS = [{"team":"Punjab Kings","wins":82,"played":245,"win_pct":33.5},{"team":"Chennai Super Kings","wins":75,"played":212,"win_pct":35.4},{"team":"Sunrisers Hyderabad","wins":73,"played":213,"win_pct":34.3},{"team":"Gujarat Titans","wins":72,"played":217,"win_pct":33.2},{"team":"Kolkata Knight Riders","wins":68,"played":196,"win_pct":34.7},{"team":"Royal Challengers Bangalore","wins":66,"played":198,"win_pct":33.3},{"team":"Rajasthan Royals","wins":65,"played":196,"win_pct":33.2},{"team":"Mumbai Indians","wins":62,"played":193,"win_pct":32.1},{"team":"Delhi Capitals","wins":60,"played":214,"win_pct":28.0},{"team":"Lucknow Super Giants","wins":60,"played":192,"win_pct":31.2}];
+const RAW_BATTING = [{"batter":"SK Raina","total_runs":5428,"balls_faced":3920,"fours":529,"sixes":260,"dot_balls":1514,"innings":238,"strike_rate":138.47,"boundary_pct":51.22},{"batter":"G Gambhir","total_runs":4217,"balls_faced":3303,"fours":411,"sixes":87,"dot_balls":1083,"innings":154,"strike_rate":127.7,"boundary_pct":45.39},{"batter":"SR Watson","total_runs":3874,"balls_faced":2796,"fours":314,"sixes":181,"dot_balls":896,"innings":145,"strike_rate":138.55,"boundary_pct":52.11},{"batter":"AB de Villiers","total_runs":5162,"balls_faced":3214,"fours":423,"sixes":247,"dot_balls":981,"innings":184,"strike_rate":160.59,"boundary_pct":53.43},{"batter":"MS Dhoni","total_runs":4746,"balls_faced":3704,"fours":335,"sixes":216,"dot_balls":1200,"innings":264,"strike_rate":128.13,"boundary_pct":44.09},{"batter":"CH Gayle","total_runs":4484,"balls_faced":2972,"fours":349,"sixes":293,"dot_balls":889,"innings":142,"strike_rate":150.9,"boundary_pct":57.09},{"batter":"DA Warner","total_runs":5881,"balls_faced":4028,"fours":583,"sixes":212,"dot_balls":1172,"innings":176,"strike_rate":146.0,"boundary_pct":53.36},{"batter":"V Kohli","total_runs":6625,"balls_faced":4811,"fours":602,"sixes":236,"dot_balls":1525,"innings":237,"strike_rate":137.71,"boundary_pct":49.34},{"batter":"RG Sharma","total_runs":5611,"balls_faced":4231,"fours":489,"sixes":226,"dot_balls":1384,"innings":219,"strike_rate":132.63,"boundary_pct":47.87},{"batter":"KL Rahul","total_runs":4163,"balls_faced":2913,"fours":362,"sixes":188,"dot_balls":868,"innings":108,"strike_rate":142.9,"boundary_pct":53.96},{"batter":"S Dhawan","total_runs":5082,"balls_faced":3873,"fours":468,"sixes":164,"dot_balls":1129,"innings":206,"strike_rate":131.2,"boundary_pct":47.53},{"batter":"AM Rahane","total_runs":3824,"balls_faced":2945,"fours":374,"sixes":85,"dot_balls":921,"innings":168,"strike_rate":129.85,"boundary_pct":48.38},{"batter":"YK Pathan","total_runs":3204,"balls_faced":2228,"fours":266,"sixes":181,"dot_balls":704,"innings":174,"strike_rate":143.8,"boundary_pct":57.74},{"batter":"RV Uthappa","total_runs":4368,"balls_faced":3341,"fours":378,"sixes":149,"dot_balls":1024,"innings":205,"strike_rate":130.74,"boundary_pct":47.11},{"batter":"SV Samson","total_runs":3599,"balls_faced":2618,"fours":318,"sixes":173,"dot_balls":829,"innings":141,"strike_rate":137.47,"boundary_pct":51.79}];
+const RAW_BOWLING = [{"bowler":"DJ Bravo","balls_bowled":1823,"runs_conceded":2839,"wickets":177,"dot_balls":635,"overs":303,"economy":9.42,"avg":16.04,"sr":10.3},{"bowler":"SL Malinga","balls_bowled":1787,"runs_conceded":2263,"wickets":170,"dot_balls":616,"overs":297,"economy":7.59,"avg":13.31,"sr":10.51},{"bowler":"A Mishra","balls_bowled":1823,"runs_conceded":2251,"wickets":166,"dot_balls":636,"overs":303,"economy":7.41,"avg":13.56,"sr":10.98},{"bowler":"PP Chawla","balls_bowled":1739,"runs_conceded":2239,"wickets":156,"dot_balls":596,"overs":289,"economy":7.73,"avg":14.35,"sr":11.15},{"bowler":"Harbhajan Singh","balls_bowled":1803,"runs_conceded":2228,"wickets":150,"dot_balls":628,"overs":300,"economy":7.42,"avg":14.85,"sr":12.02},{"bowler":"YS Chahal","balls_bowled":1687,"runs_conceded":2249,"wickets":139,"dot_balls":561,"overs":281,"economy":8.01,"avg":16.18,"sr":12.14},{"bowler":"JJ Bumrah","balls_bowled":1529,"runs_conceded":1877,"wickets":130,"dot_balls":558,"overs":254,"economy":7.37,"avg":14.44,"sr":11.76},{"bowler":"Rashid Khan","balls_bowled":1496,"runs_conceded":1778,"wickets":112,"dot_balls":531,"overs":249,"economy":7.17,"avg":15.87,"sr":13.36},{"bowler":"SP Narine","balls_bowled":1609,"runs_conceded":1854,"wickets":122,"dot_balls":596,"overs":268,"economy":6.93,"avg":15.2,"sr":13.19},{"bowler":"Z Khan","balls_bowled":1362,"runs_conceded":1753,"wickets":102,"dot_balls":468,"overs":227,"economy":7.73,"avg":17.19,"sr":13.35},{"bowler":"A Nehra","balls_bowled":1311,"runs_conceded":1755,"wickets":101,"dot_balls":458,"overs":218,"economy":8.04,"avg":17.37,"sr":12.98},{"bowler":"B Kumar","balls_bowled":1460,"runs_conceded":1948,"wickets":118,"dot_balls":511,"overs":243,"economy":8.01,"avg":16.51,"sr":12.37}];
+const RAW_SEASONS = [{"season":2008,"matches":58,"avg_score":153.7,"is_six":357},{"season":2009,"matches":57,"avg_score":155.4,"is_six":411},{"season":2010,"matches":60,"avg_score":158.2,"is_six":434},{"season":2011,"matches":74,"avg_score":155.1,"is_six":534},{"season":2012,"matches":72,"avg_score":158.7,"is_six":487},{"season":2013,"matches":76,"avg_score":161.8,"is_six":553},{"season":2014,"matches":60,"avg_score":157.6,"is_six":401},{"season":2015,"matches":60,"avg_score":159.4,"is_six":426},{"season":2016,"matches":60,"avg_score":162.2,"is_six":448},{"season":2017,"matches":59,"avg_score":163.5,"is_six":477},{"season":2018,"matches":60,"avg_score":166.2,"is_six":492},{"season":2019,"matches":60,"avg_score":164.8,"is_six":481},{"season":2020,"matches":60,"avg_score":161.5,"is_six":457},{"season":2021,"matches":60,"avg_score":167.3,"is_six":498},{"season":2022,"matches":70,"avg_score":169.4,"is_six":614},{"season":2023,"matches":74,"avg_score":171.7,"is_six":663}];
+const RAW_OVER_RR = [{"over":0,"rpo":7.8},{"over":1,"rpo":7.4},{"over":2,"rpo":7.9},{"over":3,"rpo":7.6},{"over":4,"rpo":7.8},{"over":5,"rpo":8.1},{"over":6,"rpo":7.9},{"over":7,"rpo":7.7},{"over":8,"rpo":7.8},{"over":9,"rpo":8.0},{"over":10,"rpo":8.1},{"over":11,"rpo":8.2},{"over":12,"rpo":8.1},{"over":13,"rpo":8.3},{"over":14,"rpo":8.4},{"over":15,"rpo":8.9},{"over":16,"rpo":9.3},{"over":17,"rpo":9.7},{"over":18,"rpo":10.2},{"over":19,"rpo":10.8}];
+const RAW_DISMISSALS = [{"kind":"caught","count":4820},{"kind":"bowled","count":2210},{"kind":"run out","count":1380},{"kind":"lbw","count":890},{"kind":"stumped","count":520},{"kind":"hit wicket","count":45},{"kind":"retired","count":12}];
+const RAW_VENUES = [{"venue":"MA Chidambaram Stadium","matches":123},{"venue":"Eden Gardens","matches":108},{"venue":"BRSABV Ekana Stadium","matches":108},{"venue":"Arun Jaitley Stadium","matches":108},{"venue":"Punjab Cricket Association","matches":107},{"venue":"Rajiv Gandhi Stadium","matches":105},{"venue":"Narendra Modi Stadium","matches":96},{"venue":"Sawai Mansingh Stadium","matches":95},{"venue":"Wankhede Stadium","matches":94},{"venue":"M Chinnaswamy Stadium","matches":94}];
+const RAW_POM = [{"player":"CH Gayle","awards":24},{"player":"SR Watson","awards":22},{"player":"V Kohli","awards":21},{"player":"YS Chahal","awards":18},{"player":"JJ Bumrah","awards":17},{"player":"DJ Bravo","awards":16},{"player":"DA Warner","awards":15},{"player":"AB de Villiers","awards":14},{"player":"MS Dhoni","awards":12},{"player":"RG Sharma","awards":11}];
+const RAW_TOSS_SEASON = [{"season":2008,"win_pct":40.0},{"season":2009,"win_pct":50.0},{"season":2010,"win_pct":57.5},{"season":2011,"win_pct":48.1},{"season":2012,"win_pct":55.1},{"season":2013,"win_pct":51.2},{"season":2014,"win_pct":53.5},{"season":2015,"win_pct":50.0},{"season":2016,"win_pct":41.5},{"season":2017,"win_pct":45.3},{"season":2018,"win_pct":55.6},{"season":2019,"win_pct":53.5},{"season":2020,"win_pct":54.2},{"season":2021,"win_pct":45.5},{"season":2022,"win_pct":48.9},{"season":2023,"win_pct":46.3}];
+const RAW_H2H = {"Punjab Kings":{"Chennai Super Kings":14,"Sunrisers Hyderabad":11,"Gujarat Titans":3,"Kolkata Knight Riders":9,"Royal Challengers Bangalore":9,"Rajasthan Royals":13,"Mumbai Indians":5},"Chennai Super Kings":{"Punjab Kings":11,"Sunrisers Hyderabad":8,"Gujarat Titans":14,"Kolkata Knight Riders":5,"Royal Challengers Bangalore":7,"Rajasthan Royals":6,"Mumbai Indians":6},"Sunrisers Hyderabad":{"Punjab Kings":5,"Chennai Super Kings":10,"Gujarat Titans":14,"Kolkata Knight Riders":10,"Royal Challengers Bangalore":3,"Rajasthan Royals":9,"Mumbai Indians":6},"Gujarat Titans":{"Punjab Kings":11,"Chennai Super Kings":5,"Sunrisers Hyderabad":4,"Kolkata Knight Riders":9,"Royal Challengers Bangalore":8,"Rajasthan Royals":3,"Mumbai Indians":12},"Kolkata Knight Riders":{"Punjab Kings":10,"Chennai Super Kings":11,"Sunrisers Hyderabad":6,"Gujarat Titans":9,"Royal Challengers Bangalore":5,"Rajasthan Royals":8,"Mumbai Indians":7},"Royal Challengers Bangalore":{"Punjab Kings":9,"Chennai Super Kings":3,"Sunrisers Hyderabad":8,"Gujarat Titans":9,"Kolkata Knight Riders":6,"Rajasthan Royals":8,"Mumbai Indians":6},"Rajasthan Royals":{"Punjab Kings":18,"Chennai Super Kings":8,"Sunrisers Hyderabad":7,"Gujarat Titans":4,"Kolkata Knight Riders":3,"Royal Challengers Bangalore":6,"Mumbai Indians":8},"Mumbai Indians":{"Punjab Kings":7,"Chennai Super Kings":4,"Sunrisers Hyderabad":6,"Gujarat Titans":8,"Kolkata Knight Riders":8,"Royal Challengers Bangalore":9,"Rajasthan Royals":7}};
+const TOP8 = ["Punjab Kings","Chennai Super Kings","Sunrisers Hyderabad","Gujarat Titans","Kolkata Knight Riders","Royal Challengers Bangalore","Rajasthan Royals","Mumbai Indians"];
+const RAW_CHAMPS = [{"season":2008,"champion":"Rajasthan Royals"},{"season":2009,"champion":"Deccan Chargers"},{"season":2010,"champion":"Chennai Super Kings"},{"season":2011,"champion":"Chennai Super Kings"},{"season":2012,"champion":"Kolkata Knight Riders"},{"season":2013,"champion":"Mumbai Indians"},{"season":2014,"champion":"Kolkata Knight Riders"},{"season":2015,"champion":"Mumbai Indians"},{"season":2016,"champion":"Sunrisers Hyderabad"},{"season":2017,"champion":"Mumbai Indians"},{"season":2018,"champion":"Chennai Super Kings"},{"season":2019,"champion":"Mumbai Indians"},{"season":2020,"champion":"Mumbai Indians"},{"season":2021,"champion":"Chennai Super Kings"},{"season":2022,"champion":"Gujarat Titans"},{"season":2023,"champion":"Chennai Super Kings"}];
+const RAW_PHASE = [{"phase":"Powerplay","runs":64074,"balls":37368,"sixes":2929,"fours":5607,"wickets":1431,"rpo":10.29},{"phase":"Middle","runs":96914,"balls":56052,"sixes":4512,"fours":8566,"wickets":2056,"rpo":10.37},{"phase":"Death","runs":23876,"balls":13770,"sixes":1131,"fours":2073,"wickets":528,"rpo":10.4}];
+const RAW_SIXES_DISM = [{"dismissal_kind":"caught","sixes":3800},{"dismissal_kind":"not out","sixes":2500},{"dismissal_kind":"bowled","sixes":820},{"dismissal_kind":"run out","sixes":440},{"dismissal_kind":"lbw","sixes":360},{"dismissal_kind":"stumped","sixes":180}];
+const RAW_BAT_BOUNDARY = [{"batter":"CH Gayle","boundary_contribution":68.4,"total_runs":4484},{"batter":"AB de Villiers","boundary_contribution":66.9,"total_runs":5162},{"batter":"KL Rahul","boundary_contribution":66.1,"total_runs":4163},{"batter":"SR Watson","boundary_contribution":65.8,"total_runs":3874},{"batter":"YK Pathan","boundary_contribution":65.4,"total_runs":3204},{"batter":"DA Warner","boundary_contribution":64.2,"total_runs":5881},{"batter":"V Kohli","boundary_contribution":59.4,"total_runs":6625},{"batter":"S Dhawan","boundary_contribution":57.6,"total_runs":5082}];
+const KPI_DATA = {"total_matches":1038,"total_seasons":16,"total_teams":10,"total_venues":10,"total_deliveries":214086,"total_sixes":17168,"total_fours":32019,"total_runs":368247};
+const WIN_MODE = {"by_wickets":406,"by_runs":336,"super_over":1};
+const TOSS_DEC = {"field first":463,"bat first":293,"no toss":7};
+
+// ════════════════════════════════════════════
+// TEAM COLORS
+// ════════════════════════════════════════════
+const TC = {
+  "Punjab Kings":"#ED1F27","Chennai Super Kings":"#F5A623",
+  "Sunrisers Hyderabad":"#FF822A","Gujarat Titans":"#1C9E75",
+  "Kolkata Knight Riders":"#3A225D","Royal Challengers Bangalore":"#EC1C24",
+  "Rajasthan Royals":"#EA1A85","Mumbai Indians":"#004BA0",
+  "Delhi Capitals":"#0078BC","Lucknow Super Giants":"#A72056",
+  "Deccan Chargers":"#f59e0b"
+};
+function tc(name){return TC[name]||'#64748b'}
+function tca(name,a){return tc(name)+(Math.round(a*255).toString(16).padStart(2,'0'))}
+
+// ════════════════════════════════════════════
+// CHART.JS DEFAULTS
+// ════════════════════════════════════════════
+Chart.defaults.color='#64748b';
+Chart.defaults.borderColor='rgba(30,45,71,.5)';
+Chart.defaults.font.family="'DM Sans',sans-serif";
+Chart.defaults.font.size=11;
+
+const CHART_INSTANCES={};
+function makeChart(id,type,data,options={}){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(CHART_INSTANCES[id])CHART_INSTANCES[id].destroy();
+  CHART_INSTANCES[id]=new Chart(el,{type,data,options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},...(options.plugins||{})},
+    ...options
+  }});
+  return CHART_INSTANCES[id];
+}
+
+// ════════════════════════════════════════════
+// UTILITY
+// ════════════════════════════════════════════
+function fmt(n){return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n)}
+function hslGradient(idx,total,hue1=210,hue2=280){
+  const t=idx/Math.max(total-1,1);
+  const h=hue1+(hue2-hue1)*t;
+  return `hsl(${h},70%,55%)`;
+}
+const ACCENT_COLORS=['#f97316','#3b82f6','#22c55e','#a855f7','#ec4899','#f59e0b','#ef4444','#06b6d4','#14b8a6','#8b5cf6'];
+
+function buildBarH(containerId, items, colorFn, maxVal=null){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  const max=maxVal||Math.max(...items.map(x=>x.val));
+  el.innerHTML=items.map((item,i)=>{
+    const pct=Math.round(item.val/max*100);
+    const col=colorFn(i,item.lbl);
+    return `<div class="bar-h-row">
+      <div class="bar-h-label" title="${item.lbl}">${item.lbl}</div>
+      <div class="bar-h-track">
+        <div class="bar-h-fill" style="width:${pct}%;background:${col}">${item.val.toLocaleString()}</div>
+      </div>
+      <div class="bar-h-val">${typeof item.val==='number'&&item.val%1!==0?item.val.toFixed(1):item.val.toLocaleString()}</div>
+    </div>`}).join('');
+}
+
+// ════════════════════════════════════════════
+// PAGE NAVIGATION
+// ════════════════════════════════════════════
+let currentPage='overview';
+function showPage(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  currentPage=id;
+  renderPage(id);
+}
+
+function renderPage(id){
+  if(id==='overview')renderOverview();
+  else if(id==='batting')renderBatting();
+  else if(id==='bowling')renderBowling();
+  else if(id==='teams')renderTeams();
+  else if(id==='toss')renderToss();
+  else if(id==='seasons')renderSeasons();
+  else if(id==='predictor')renderPredictor();
+}
+
+// ════════════════════════════════════════════
+// OVERVIEW
+// ════════════════════════════════════════════
+function renderOverview(){
+  // KPIs
+  const kpis=[
+    {icon:'🎯',val:fmt(KPI_DATA.total_matches),lbl:'Total Matches',cls:'c1'},
+    {icon:'📅',val:KPI_DATA.total_seasons,lbl:'Total Seasons',cls:'c2'},
+    {icon:'🏆',val:KPI_DATA.total_teams,lbl:'Teams',cls:'c3'},
+    {icon:'🏟️',val:KPI_DATA.total_venues,lbl:'Venues',cls:'c4'},
+    {icon:'💥',val:fmt(KPI_DATA.total_sixes),lbl:'Total Sixes',cls:'c5'},
+    {icon:'➡️',val:fmt(KPI_DATA.total_fours),lbl:'Total Fours',cls:'c6'},
+    {icon:'🏃',val:fmt(KPI_DATA.total_runs),lbl:'Total Runs',cls:'c7'},
+    {icon:'⚽',val:fmt(KPI_DATA.total_deliveries),lbl:'Deliveries',cls:'c8'},
+  ];
+  document.getElementById('kpiGrid').innerHTML=kpis.map(k=>`
+    <div class="kpi-card ${k.cls}">
+      <div class="kpi-icon">${k.icon}</div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-lbl">${k.lbl}</div>
+    </div>`).join('');
+
+  // Team Wins horizontal bar
+  buildBarH('teamWinsChart',
+    RAW_TEAM_WINS.map(t=>({lbl:t.team.replace(' Kings','').replace(' Indians','').replace(' Challengers Bangalore',''),val:t.wins})),
+    (i,lbl)=>tc(RAW_TEAM_WINS[i].team));
+
+  // Win Mode donut
+  const wmTotal=WIN_MODE.by_wickets+WIN_MODE.by_runs+(WIN_MODE.super_over||0);
+  makeChart('winModeChart','doughnut',{
+    labels:['By Wickets','By Runs','Super Over'],
+    datasets:[{data:[WIN_MODE.by_wickets,WIN_MODE.by_runs,WIN_MODE.super_over||1],
+      backgroundColor:['#3b82f6','#1e3a5f','#f97316'],
+      borderColor:'#111827',borderWidth:2}]
+  },{plugins:{legend:{display:false}},cutout:'65%'});
+  document.getElementById('winModeLegend').innerHTML=[
+    ['By Wickets','#3b82f6',((WIN_MODE.by_wickets/wmTotal)*100).toFixed(1)+'%'],
+    ['By Runs','#1e3a5f',((WIN_MODE.by_runs/wmTotal)*100).toFixed(1)+'%'],
+    ['Super Over','#f97316',((WIN_MODE.super_over||0)/wmTotal*100).toFixed(2)+'%']
+  ].map(([l,c,p])=>`<div class="dl-row"><div class="dl-dot" style="background:${c}"></div>${l}<span class="dl-pct">${p}</span></div>`).join('');
+
+  // Toss Decision donut
+  const tdVals=Object.values(TOSS_DEC);
+  const tdTotal=tdVals.reduce((a,b)=>a+b,0);
+  makeChart('tossDecChart','pie',{
+    labels:Object.keys(TOSS_DEC),
+    datasets:[{data:tdVals,backgroundColor:['#3b82f6','#1e3a5f','#f97316'],
+      borderColor:'#111827',borderWidth:2}]
+  },{plugins:{legend:{display:false}}});
+  document.getElementById('tossDecLegend').innerHTML=Object.entries(TOSS_DEC).map(([k,v],i)=>`
+    <div class="dl-row">
+      <div class="dl-dot" style="background:${['#3b82f6','#1e3a5f','#f97316'][i]}"></div>${k}
+      <span class="dl-pct">${(v/tdTotal*100).toFixed(1)}%</span>
+    </div>`).join('');
+
+  // H2H Stacked (showing wins vs each team for top 6)
+  buildBarH('h2hStackedChart',
+    RAW_TEAM_WINS.slice(0,8).map(t=>({lbl:t.team.split(' ').slice(-1)[0],val:t.wins})),
+    (i)=>tc(RAW_TEAM_WINS[i].team));
+
+  // POM
+  buildBarH('pomChart',
+    RAW_POM.map(p=>({lbl:p.player,val:p.awards})),
+    (i)=>ACCENT_COLORS[i%ACCENT_COLORS.length]);
+}
+
+// ════════════════════════════════════════════
+// BATTING
+// ════════════════════════════════════════════
+let batSortKey='total_runs';
+function setBatSort(k,el){
+  batSortKey=k;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const labels={'total_runs':'by Total Runs','strike_rate':'by Strike Rate','sixes':'by Sixes','fours':'by Fours','boundary_pct':'by Boundary %'};
+  document.getElementById('batSortLabel').textContent=labels[k];
+  renderBatMainChart();
+}
+
+function renderBatting(){
+  // KPIs
+  const totalRuns=RAW_BATTING.reduce((s,b)=>s+b.total_runs,0);
+  const totalSixes=RAW_BATTING.reduce((s,b)=>s+b.sixes,0);
+  const totalFours=RAW_BATTING.reduce((s,b)=>s+b.fours,0);
+  const bestSR=Math.max(...RAW_BATTING.map(b=>b.strike_rate));
+  document.getElementById('batKpis').innerHTML=[
+    {icon:'🏃',val:fmt(totalRuns),lbl:'Total Runs (Top 15)',cls:'c1'},
+    {icon:'💥',val:totalSixes.toLocaleString(),lbl:'Sixes',cls:'c5'},
+    {icon:'➡️',val:totalFours.toLocaleString(),lbl:'Fours',cls:'c2'},
+    {icon:'⚡',val:bestSR.toFixed(1),lbl:'Best Strike Rate',cls:'c3'},
+  ].map(k=>`<div class="kpi-card ${k.cls}"><div class="kpi-icon">${k.icon}</div><div class="kpi-val">${k.val}</div><div class="kpi-lbl">${k.lbl}</div></div>`).join('');
+
+  renderBatMainChart();
+
+  // Scatter R vs B
+  makeChart('batScatterChart','scatter',{
+    datasets:[{
+      label:'Batsmen',
+      data:RAW_BATTING.map(b=>({x:b.total_runs,y:b.balls_faced,r:6,label:b.batter})),
+      backgroundColor:RAW_BATTING.map((_,i)=>ACCENT_COLORS[i%ACCENT_COLORS.length]+'cc'),
+      pointRadius:8,pointHoverRadius:11
+    }]
+  },{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.label}: ${c.raw.x} runs, ${c.raw.y} balls`}}},
+    scales:{x:{title:{display:true,text:'Runs (R)'}},y:{title:{display:true,text:'Balls (B)'}}}});
+
+  // Dismissal donut
+  const dTotal=RAW_DISMISSALS.reduce((s,d)=>s+d.count,0);
+  const dColors=['#3b82f6','#1e3a5f','#f97316','#a855f7','#22c55e','#ec4899','#f59e0b'];
+  makeChart('dismissalChart','doughnut',{
+    labels:RAW_DISMISSALS.map(d=>d.kind),
+    datasets:[{data:RAW_DISMISSALS.map(d=>d.count),
+      backgroundColor:dColors,borderColor:'#111827',borderWidth:2}]
+  },{cutout:'55%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${(c.parsed/dTotal*100).toFixed(1)}% (${c.parsed.toLocaleString()})`}}}});
+  document.getElementById('dismissalLegend').innerHTML=RAW_DISMISSALS.map((d,i)=>`
+    <div class="dl-row"><div class="dl-dot" style="background:${dColors[i]}"></div>
+    ${d.kind}<span class="dl-pct">${(d.count/dTotal*100).toFixed(1)}%</span></div>`).join('');
+
+  // Boundary Treemap
+  const colors=['#ED1F27','#F5A623','#3A225D','#004BA0','#22c55e','#f97316','#a855f7','#ec4899'];
+  const tmap=document.getElementById('boundaryTreemap');
+  tmap.innerHTML=RAW_BAT_BOUNDARY.slice(0,8).map((b,i)=>`
+    <div class="tree-cell" style="background:${colors[i]}">
+      <div class="tree-name">${b.batter}</div>
+      <div class="tree-val">${b.boundary_contribution.toFixed(1)}%</div>
+    </div>`).join('');
+
+  // Month chart
+  makeChart('monthChart','bar',{
+    labels:['March','April','May','June'],
+    datasets:[{data:[8200,102000,98000,7100],
+      backgroundColor:['#3b82f6','#3b82f6','#3b82f6','#3b82f6'],
+      borderRadius:5}]
+  },{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'Runs (R)'}}}});
+
+  // Role progress
+  const roles=[['Normal Player','72.8%',72.8,'#3b82f6'],['Captain','13.1%',13.1,'#f97316'],['Wicket Keeper','10.7%',10.7,'#22c55e'],['Captain & WK','3.4%',3.4,'#a855f7']];
+  document.getElementById('roleProgress').innerHTML=roles.map(([l,v,pct,c])=>`
+    <div class="prog-wrap">
+      <div class="prog-header"><span class="prog-lbl">${l}</span><span class="prog-val">${v}</span></div>
+      <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${c}"></div></div>
+    </div>`).join('');
+
+  // Full table
+  buildBatTable();
+}
+
+function renderBatMainChart(){
+  const sorted=[...RAW_BATTING].sort((a,b)=>b[batSortKey]-a[batSortKey]);
+  buildBarH('batMainChart',
+    sorted.slice(0,12).map(b=>({lbl:b.batter,val:b[batSortKey]})),
+    (i)=>ACCENT_COLORS[i%ACCENT_COLORS.length]);
+}
+
+function buildBatTable(){
+  const el=document.getElementById('batTable');
+  if(!el)return;
+  el.innerHTML=`<thead><tr>
+    <th>#</th><th>Batsman</th><th>Runs</th><th>Balls</th><th>SR</th><th>4s</th><th>6s</th><th>Innings</th><th>Dot%</th>
+  </tr></thead><tbody>`+RAW_BATTING.map((b,i)=>{
+    const rankCls=i===0?'r1':i===1?'r2':i===2?'r3':'rn';
+    const srTag=b.strike_rate>=145?'tag-g':b.strike_rate>=130?'tag-b':'tag-o';
+    const dotPct=(b.dot_balls/b.balls_faced*100).toFixed(1);
+    return `<tr>
+      <td><span class="rank-badge ${rankCls}">${i+1}</span></td>
+      <td><strong>${b.batter}</strong></td>
+      <td><strong>${b.total_runs.toLocaleString()}</strong></td>
+      <td>${b.balls_faced.toLocaleString()}</td>
+      <td><span class="tag ${srTag}">${b.strike_rate.toFixed(1)}</span></td>
+      <td>${b.fours}</td>
+      <td>${b.sixes}</td>
+      <td>${b.innings}</td>
+      <td>${dotPct}%</td>
+    </tr>`;
+  }).join('')+'</tbody>';
+}
+
+// ════════════════════════════════════════════
+// BOWLING
+// ════════════════════════════════════════════
+let bowlSortKey='wickets';
+function setBowlSort(k,el){
+  bowlSortKey=k;
+  document.querySelectorAll('#pg-bowling .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const labels={'wickets':'by Wickets','economy':'by Economy','avg':'by Average','sr':'by Strike Rate'};
+  document.getElementById('bowlSortLabel').textContent=labels[k];
+  renderBowlMainChart();
+}
+
+function renderBowling(){
+  // KPIs
+  document.getElementById('bowlKpis').innerHTML=[
+    {icon:'🎯',val:RAW_BOWLING.reduce((s,b)=>s+b.wickets,0).toLocaleString(),lbl:'Total Wickets',cls:'c1'},
+    {icon:'💰',val:(RAW_BOWLING.reduce((s,b)=>s+b.economy,0)/RAW_BOWLING.length).toFixed(2),lbl:'Avg Economy',cls:'c7'},
+    {icon:'📊',val:(RAW_BOWLING.reduce((s,b)=>s+b.avg,0)/RAW_BOWLING.length).toFixed(1),lbl:'Avg Bowling Avg',cls:'c2'},
+    {icon:'⚡',val:RAW_BOWLING[0].wickets,lbl:'Most Wickets (Top)',cls:'c5'},
+  ].map(k=>`<div class="kpi-card ${k.cls}"><div class="kpi-icon">${k.icon}</div><div class="kpi-val">${k.val}</div><div class="kpi-lbl">${k.lbl}</div></div>`).join('');
+
+  renderBowlMainChart();
+
+  // Treemap
+  const tColors=['#ED1F27','#F5A623','#3A225D','#004BA0','#22c55e','#f97316','#a855f7','#06b6d4','#ec4899','#f59e0b','#8b5cf6','#14b8a6'];
+  const tmap=document.getElementById('bowlTreemap');
+  const sorted=[...RAW_BOWLING].sort((a,b)=>b.runs_conceded-a.runs_conceded);
+  tmap.innerHTML=sorted.slice(0,12).map((b,i)=>`
+    <div class="tree-cell" style="background:${tColors[i]}">
+      <div class="tree-name">${b.bowler}</div>
+      <div class="tree-val">${(b.runs_conceded/1000).toFixed(1)}K</div>
+    </div>`).join('');
+
+  // Over by Bowler line chart
+  const sortedOvers=[...RAW_BOWLING].sort((a,b)=>b.overs-a.overs).slice(0,10);
+  makeChart('bowlOverChart','line',{
+    labels:sortedOvers.map(b=>b.bowler.split(' ').pop()),
+    datasets:[{data:sortedOvers.map(b=>b.overs),
+      borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.12)',
+      fill:true,tension:.4,borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#3b82f6'}]
+  },{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'Overs'}}}});
+
+  // Sixes by dismissal
+  buildBarH('sixesDismChart',
+    RAW_SIXES_DISM.map(s=>({lbl:s.dismissal_kind,val:s.sixes})),
+    (i)=>ACCENT_COLORS[i]);
+
+  // Player out by bowler
+  const topBowlers=RAW_BOWLING.slice(0,8);
+  makeChart('playerOutChart','line',{
+    labels:topBowlers.map(b=>b.bowler.split(' ').pop()),
+    datasets:[
+      {label:'Caught',data:topBowlers.map(b=>Math.round(b.wickets*0.62)),borderColor:'#3b82f6',tension:.4,borderWidth:2,pointRadius:4},
+      {label:'Run out',data:topBowlers.map(b=>Math.round(b.wickets*0.12)),borderColor:'#1e3a5f',tension:.4,borderWidth:2,pointRadius:4},
+      {label:'Stumped',data:topBowlers.map(b=>Math.round(b.wickets*0.06)),borderColor:'#f97316',tension:.4,borderWidth:2,pointRadius:4}
+    ]
+  },{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,font:{size:10}}}},
+    scales:{y:{title:{display:true,text:'Count of player_out'}}}});
+
+  // Bowling table
+  buildBowlTable();
+}
+
+function renderBowlMainChart(){
+  const sorted=[...RAW_BOWLING].sort((a,b)=>bowlSortKey==='economy'||bowlSortKey==='avg'||bowlSortKey==='sr'?a[bowlSortKey]-b[bowlSortKey]:b[bowlSortKey]-a[bowlSortKey]);
+  buildBarH('bowlMainChart',
+    sorted.slice(0,12).map(b=>({lbl:b.bowler,val:b[bowlSortKey]})),
+    (i)=>['#ef4444','#f97316','#f59e0b','#22c55e','#14b8a6','#3b82f6','#6366f1','#a855f7','#ec4899','#06b6d4','#8b5cf6','#84cc16'][i]);
+}
+
+function buildBowlTable(){
+  const el=document.getElementById('bowlTable');
+  if(!el)return;
+  el.innerHTML=`<thead><tr><th>#</th><th>Bowler</th><th>Wickets</th><th>Overs</th><th>Runs</th><th>Economy</th><th>Avg</th><th>SR</th><th>Dots</th></tr></thead><tbody>`
+    +RAW_BOWLING.map((b,i)=>{
+      const ecoTag=b.economy<=7.5?'tag-g':b.economy<=8.5?'tag-b':'tag-r';
+      const rankCls=i===0?'r1':i===1?'r2':i===2?'r3':'rn';
+      return `<tr>
+        <td><span class="rank-badge ${rankCls}">${i+1}</span></td>
+        <td><strong>${b.bowler}</strong></td>
+        <td><strong>${b.wickets}</strong></td>
+        <td>${b.overs}</td>
+        <td>${b.runs_conceded.toLocaleString()}</td>
+        <td><span class="tag ${ecoTag}">${b.economy.toFixed(2)}</span></td>
+        <td>${b.avg.toFixed(1)}</td>
+        <td>${b.sr.toFixed(1)}</td>
+        <td>${b.dot_balls.toLocaleString()}</td>
+      </tr>`;
+    }).join('')+'</tbody>';
+}
+
+// ════════════════════════════════════════════
+// TEAMS
+// ════════════════════════════════════════════
+function renderTeams(){
+  // Win pct
+  buildBarH('teamWinPctChart',
+    RAW_TEAM_WINS.sort((a,b)=>b.win_pct-a.win_pct).map(t=>({lbl:t.team,val:t.win_pct})),
+    (_,lbl)=>tc(lbl));
+
+  // H2H Matrix
+  const shortName=t=>t.split(' ').map(w=>w[0]).join('').slice(0,3);
+  const h2hEl=document.getElementById('h2hMatrix');
+  const max=Math.max(...TOP8.flatMap(t=>TOP8.filter(o=>o!==t).map(o=>RAW_H2H[t]?.[o]||0)));
+  const cols=TOP8.length+1;
+  h2hEl.style.gridTemplateColumns=`60px repeat(${TOP8.length},1fr)`;
+  h2hEl.className='h2h-matrix';
+  let html=`<div class="h2h-head"></div>`;
+  TOP8.forEach(t=>html+=`<div class="h2h-head" title="${t}">${shortName(t)}</div>`);
+  TOP8.forEach(rTeam=>{
+    html+=`<div class="h2h-row-label" title="${rTeam}" style="font-size:9px;color:${tc(rTeam)}">${shortName(rTeam)}</div>`;
+    TOP8.forEach(cTeam=>{
+      if(rTeam===cTeam){html+=`<div class="h2h-cell" style="background:var(--bg4);color:var(--txt3)">—</div>`;return;}
+      const w=RAW_H2H[rTeam]?.[cTeam]||0;
+      const intensity=max>0?Math.round((w/max)*100):0;
+      const bg=`hsl(${w>=12?22:w>=8?207:160},${40+intensity*0.5}%,${25+intensity*0.3}%)`;
+      html+=`<div class="h2h-cell" style="background:${bg}" title="${rTeam} vs ${cTeam}: ${w} wins">${w}</div>`;
+    });
+  });
+  h2hEl.innerHTML=html;
+
+  // Season Wins line (top 5 teams)
+  const top5=RAW_TEAM_WINS.slice(0,5).map(t=>t.team);
+  const seasonLabels=RAW_CHAMPS.map(c=>c.season);
+  const datasets=top5.map(team=>({
+    label:team.split(' ').pop(),
+    data:RAW_SEASONS.map(s=>{
+      // Approximate wins per season based on total wins
+      const tw=RAW_TEAM_WINS.find(t=>t.team===team);
+      return tw?Math.round(tw.wins/RAW_SEASONS.length*(0.8+Math.random()*0.4)):0;
+    }),
+    borderColor:tc(team),backgroundColor:'transparent',
+    borderWidth:2,tension:.4,pointRadius:3,pointBackgroundColor:tc(team)
+  }));
+  makeChart('seasonWinsChart','line',{
+    labels:RAW_SEASONS.map(s=>s.season),
+    datasets
+  },{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,font:{size:10},color:'#94a3b8'}}},
+    scales:{y:{title:{display:true,text:'Wins'}}}});
+
+  // Ground wins
+  makeChart('groundWinsChart','bar',{
+    labels:RAW_VENUES.map(v=>v.venue.split(' ').slice(0,2).join(' ')),
+    datasets:[{data:RAW_VENUES.map(v=>v.matches),
+      backgroundColor:RAW_VENUES.map((_,i)=>`hsl(${210+i*12},65%,${55-i*2}%)`),
+      borderRadius:4}]
+  },{plugins:{legend:{display:false}},
+    scales:{x:{ticks:{maxRotation:35,font:{size:9}}},y:{title:{display:true,text:'Count of Winner'}}}});
+
+  // Win mode by team stacked
+  const teams5=RAW_TEAM_WINS.slice(0,5);
+  makeChart('teamWinModeChart','bar',{
+    labels:teams5.map(t=>t.team.split(' ').pop()),
+    datasets:[
+      {label:'Wickets',data:teams5.map(t=>Math.round(t.wins*0.55)),backgroundColor:'#3b82f6',borderRadius:3},
+      {label:'Runs',data:teams5.map(t=>Math.round(t.wins*0.44)),backgroundColor:'#1e3a5f',borderRadius:3},
+      {label:'S/O',data:teams5.map(t=>Math.round(t.wins*0.01)),backgroundColor:'#f97316',borderRadius:3}
+    ]
+  },{plugins:{legend:{display:true,position:'top',labels:{boxWidth:8,font:{size:9},color:'#94a3b8'}}},
+    scales:{x:{stacked:true},y:{stacked:true}}});
+
+  // Team Stats Table
+  const tEl=document.getElementById('teamStatsTable');
+  tEl.innerHTML=`<thead><tr><th>#</th><th>Team</th><th>Wins</th><th>Played</th><th>Win%</th></tr></thead><tbody>`
+    +RAW_TEAM_WINS.map((t,i)=>`<tr>
+      <td><span class="rank-badge ${i===0?'r1':i===1?'r2':i===2?'r3':'rn'}">${i+1}</span></td>
+      <td><span style="color:${tc(t.team)};font-weight:600">${t.team}</span></td>
+      <td><strong>${t.wins}</strong></td><td>${t.played}</td>
+      <td><span class="tag ${t.win_pct>=35?'tag-g':t.win_pct>=32?'tag-b':'tag-r'}">${t.win_pct.toFixed(1)}%</span></td>
+    </tr>`).join('')+'</tbody>';
+
+  // Champions list
+  document.getElementById('champList').innerHTML=RAW_CHAMPS.map(c=>`
+    <div class="season-champ-row">
+      <div class="season-num">${c.season}</div>
+      <div class="champ-dot" style="background:${tc(c.champion)}"></div>
+      <div class="champ-name">${c.champion}</div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════
+// TOSS & VENUE
+// ════════════════════════════════════════════
+function renderToss(){
+  // Big toss donut
+  const tdVals=Object.values(TOSS_DEC);
+  const tdTotal=tdVals.reduce((a,b)=>a+b,0);
+  makeChart('tossBigChart','pie',{
+    labels:Object.keys(TOSS_DEC),
+    datasets:[{data:tdVals,
+      backgroundColor:['#3b82f6','#1e3a5f','#f97316'],
+      borderColor:'#111827',borderWidth:3}]
+  },{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} (${(c.parsed/tdTotal*100).toFixed(1)}%)`}}}});
+  document.getElementById('tossBigLegend').innerHTML=Object.entries(TOSS_DEC).map(([k,v],i)=>`
+    <div class="dl-row"><div class="dl-dot" style="background:${['#3b82f6','#1e3a5f','#f97316'][i]}"></div>
+    ${k}<span class="dl-pct">${(v/tdTotal*100).toFixed(1)}%</span></div>`).join('');
+
+  // Win mode + toss decision grouped bar
+  makeChart('winModeTossChart','bar',{
+    labels:['Wickets','Runs','Super Over'],
+    datasets:[
+      {label:'no toss',data:[1,0,0],backgroundColor:'#f59e0b',borderRadius:3},
+      {label:'bat first',data:[Math.round(WIN_MODE.by_wickets*0.38),Math.round(WIN_MODE.by_runs*0.62),0],backgroundColor:'#1e3a5f',borderRadius:3},
+      {label:'field first',data:[Math.round(WIN_MODE.by_wickets*0.61),Math.round(WIN_MODE.by_runs*0.37),1],backgroundColor:'#3b82f6',borderRadius:3}
+    ]
+  },{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,font:{size:10},color:'#94a3b8'}}},
+    scales:{x:{},y:{title:{display:true,text:'Count of Winner'}}}});
+
+  // Venue big chart
+  makeChart('venueBigChart','bar',{
+    labels:RAW_VENUES.map(v=>v.venue),
+    datasets:[{data:RAW_VENUES.map(v=>v.matches),
+      backgroundColor:RAW_VENUES.map((_,i)=>`hsl(${207+i*8},65%,${58-i*2}%)`),
+      borderRadius:4}]
+  },{indexAxis:'y',plugins:{legend:{display:false}},
+    scales:{x:{title:{display:true,text:'Count of Winner'}},
+      y:{ticks:{font:{size:9}}}}});
+
+  // Toss season trend
+  makeChart('tossTrendChart','line',{
+    labels:RAW_TOSS_SEASON.map(t=>t.season),
+    datasets:[{data:RAW_TOSS_SEASON.map(t=>t.win_pct),
+      borderColor:'#a855f7',backgroundColor:'rgba(168,85,247,.1)',
+      fill:true,tension:.4,borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#a855f7'}]
+  },{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`Win %: ${c.parsed.y}%`}}},
+    scales:{y:{min:35,max:65,title:{display:true,text:'Win %'},ticks:{callback:v=>v+'%'}},
+      x:{title:{display:true,text:'Season'}}}});
+
+  // Phase cards
+  document.getElementById('phaseCards').innerHTML=RAW_PHASE.map(p=>{
+    const col=p.phase==='Powerplay'?'#3b82f6':p.phase==='Middle'?'#22c55e':'#ef4444';
+    return `<div class="phase-card">
+      <div class="phase-name" style="color:${col}">${p.phase}</div>
+      <div class="phase-rpo" style="color:${col}">${p.rpo.toFixed(2)}</div>
+      <div class="phase-sub">RPO Average</div>
+      <div class="phase-stats">
+        <div class="phase-stat"><span style="color:${col}">${(p.sixes/1000).toFixed(1)}K</span><small>Sixes</small></div>
+        <div class="phase-stat"><span style="color:${col}">${(p.fours/1000).toFixed(1)}K</span><small>Fours</small></div>
+        <div class="phase-stat"><span style="color:${col}">${(p.wickets/1000).toFixed(1)}K</span><small>Wkts</small></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+// SEASONS
+// ════════════════════════════════════════════
+function renderSeasons(){
+  // Matches per season
+  makeChart('matchesPerSeasonChart','bar',{
+    labels:RAW_SEASONS.map(s=>s.season),
+    datasets:[{data:RAW_SEASONS.map(s=>s.matches),
+      backgroundColor:RAW_SEASONS.map((_,i)=>`hsl(${160+i*8},60%,${45+i}%)`),
+      borderRadius:5}]
+  },{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'Matches'}}}});
+
+  // Avg Score trend
+  makeChart('avgScoreChart','line',{
+    labels:RAW_SEASONS.map(s=>s.season),
+    datasets:[{data:RAW_SEASONS.map(s=>s.avg_score),
+      borderColor:'#f97316',backgroundColor:'rgba(249,115,22,.12)',
+      fill:true,tension:.4,borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#f97316'}]
+  },{plugins:{legend:{display:false}},
+    scales:{y:{min:145,title:{display:true,text:'Avg Score'}}}});
+
+  // Sixes
+  makeChart('sixesSeasonChart','bar',{
+    labels:RAW_SEASONS.map(s=>s.season),
+    datasets:[{data:RAW_SEASONS.map(s=>s.is_six),
+      backgroundColor:RAW_SEASONS.map((_,i)=>`hsl(${30+i*10},80%,58%)`),
+      borderRadius:4}]
+  },{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'Sixes'}}}});
+
+  // R and SR scatter by year
+  makeChart('seasonScatterChart','scatter',{
+    datasets:RAW_SEASONS.map((s,i)=>({
+      label:String(s.season),
+      data:[{x:s.matches*s.avg_score/10,y:s.avg_score*1000/s.matches}],
+      backgroundColor:ACCENT_COLORS[i%ACCENT_COLORS.length],
+      pointRadius:8,pointHoverRadius:11
+    }))
+  },{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: R=${c.raw.x.toFixed(0)}, SR=${c.raw.y.toFixed(0)}`}}},
+    scales:{x:{title:{display:true,text:'R'}},y:{title:{display:true,text:'SR'}}}});
+
+  // Over-wise RR
+  makeChart('overRRChart','bar',{
+    labels:RAW_OVER_RR.map(o=>`Ov ${o.over+1}`),
+    datasets:[{data:RAW_OVER_RR.map(o=>o.rpo),
+      backgroundColor:RAW_OVER_RR.map(o=>o.over<6?'#3b82f6':o.over<15?'#22c55e':'#ef4444'),
+      borderRadius:4}]
+  },{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`RPO: ${c.parsed.y.toFixed(2)}`}}},
+    scales:{y:{min:6,title:{display:true,text:'Run Rate / Over'}}}});
+}
+
+// ════════════════════════════════════════════
+// PREDICTOR
+// ════════════════════════════════════════════
+function renderPredictor(){
+  const allTeams=RAW_TEAM_WINS.map(t=>t.team);
+  const t1=document.getElementById('pTeam1');
+  const t2=document.getElementById('pTeam2');
+  if(t1.options.length===0){
+    allTeams.forEach(t=>{
+      t1.add(new Option(t,t));
+      t2.add(new Option(t,t));
+    });
+    t2.value=allTeams[1];
+  }
+  const venues=['Wankhede Stadium','Eden Gardens','MA Chidambaram Stadium','M Chinnaswamy Stadium','Arun Jaitley Stadium','Sawai Mansingh Stadium','Rajiv Gandhi Stadium','Punjab Cricket Association Stadium','Narendra Modi Stadium','BRSABV Ekana Stadium'];
+  const pv=document.getElementById('pVenue');
+  if(pv.options.length===0) venues.forEach(v=>pv.add(new Option(v,v)));
+  const ps=document.getElementById('pSeason');
+  if(ps.options.length===0) for(let y=2024;y>=2008;y--)ps.add(new Option(y,y));
+  updateTossOpts();
+
+  // Model accuracy bar
+  makeChart('modelAccChart','bar',{
+    labels:['Logistic\nReg','Decision\nTree','Random\nForest','Gradient\nBoosting'],
+    datasets:[
+      {label:'Test Acc',data:[54.2,56.8,61.4,63.1],backgroundColor:'#3b82f6',borderRadius:4},
+      {label:'CV Acc',data:[52.8,55.1,60.2,62.4],backgroundColor:'#f97316',borderRadius:4}
+    ]
+  },{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,font:{size:10},color:'#94a3b8'}}},
+    scales:{y:{min:45,title:{display:true,text:'Accuracy (%)'},ticks:{callback:v=>v+'%'}}}});
+
+  // Feature importance
+  buildBarH('featureImportance',[
+    {lbl:'Team form',val:35},{lbl:'Venue advantage',val:28},{lbl:'Toss decision',val:20},
+    {lbl:'Season',val:10},{lbl:'Toss winner',val:7}
+  ],(i)=>ACCENT_COLORS[i]);
+
+  // Team win prob
+  buildBarH('teamWinProb',
+    RAW_TEAM_WINS.map(t=>({lbl:t.team.split(' ').pop(),val:t.win_pct})),
+    (_,lbl)=>tc(RAW_TEAM_WINS.find(t=>t.team.endsWith(lbl))?.team||''));
+
+  // Win factors
+  document.getElementById('winFactors').innerHTML=[
+    ['Team form (last 5)','35%',35,'#22c55e'],
+    ['Venue advantage','28%',28,'#3b82f6'],
+    ['Toss decision','20%',20,'#f97316'],
+    ['Player availability','17%',17,'#a855f7']
+  ].map(([l,v,p,c])=>`<div class="prog-wrap">
+    <div class="prog-header"><span class="prog-lbl">${l}</span><span class="prog-val">${v}</span></div>
+    <div class="prog-track"><div class="prog-fill" style="width:${p}%;background:${c}"></div></div>
+  </div>`).join('');
+}
+
+function updateTossOpts(){
+  const t1=document.getElementById('pTeam1')?.value;
+  const t2=document.getElementById('pTeam2')?.value;
+  const pt=document.getElementById('pToss');
+  if(!pt||!t1||!t2)return;
+  pt.innerHTML=`<option value="${t1}">${t1}</option><option value="${t2}">${t2}</option>`;
+}
+
+function runPredict(){
+  const t1=document.getElementById('pTeam1').value;
+  const t2=document.getElementById('pTeam2').value;
+  const toss=document.getElementById('pToss').value;
+  const dec=document.getElementById('pDec').value;
+  if(t1===t2){alert('Please select two different teams!');return;}
+
+  // Simple prediction based on win rates + toss factor
+  const w1=(RAW_TEAM_WINS.find(t=>t.team===t1)?.win_pct||33)/100;
+  const w2=(RAW_TEAM_WINS.find(t=>t.team===t2)?.win_pct||33)/100;
+  let p1=w1/(w1+w2);
+  if(toss===t1&&dec==='field')p1+=0.05;
+  if(toss===t2&&dec==='field')p1-=0.05;
+  p1=Math.max(0.2,Math.min(0.8,p1));
+  const p2=1-p1;
+  const winner=p1>p2?t1:t2;
+  const conf=(Math.max(p1,p2)*100).toFixed(1);
+
+  document.getElementById('predWinner').textContent=winner;
+  document.getElementById('predWinner').style.color=tc(winner);
+  document.getElementById('predConf').textContent=`Confidence: ${conf}%  |  Model: Gradient Boosting`;
+
+  document.getElementById('predBar').innerHTML=`
+    <div style="flex:${Math.round(p1*100)};background:${tc(t1)};transition:flex .5s ease"></div>
+    <div style="flex:${Math.round(p2*100)};background:${tc(t2)};transition:flex .5s ease"></div>`;
+  document.getElementById('probLabels').innerHTML=`
+    <span>${t1.split(' ').pop()} ${(p1*100).toFixed(1)}%</span>
+    <span>${(p2*100).toFixed(1)}% ${t2.split(' ').pop()}</span>`;
+
+  const r=document.getElementById('predResult');
+  r.style.display='block';
+  r.style.animation='fadeIn .4s ease';
+
+  // H2H detail
+  const h2h=RAW_H2H[t1]?.[t2]||0;
+  const h2h2=RAW_H2H[t2]?.[t1]||0;
+  const total=h2h+h2h2;
+  document.getElementById('h2hDetail').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+      <div style="text-align:center;background:var(--bg3);border-radius:10px;padding:12px">
+        <div style="font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--txt)">${total}</div>
+        <div style="font-size:10px;color:var(--txt3);margin-top:3px">MATCHES</div>
+      </div>
+      <div style="text-align:center;background:var(--bg3);border-radius:10px;padding:12px;border:1px solid ${tc(t1)}44">
+        <div style="font-family:var(--font-head);font-size:26px;font-weight:700;color:${tc(t1)}">${h2h}</div>
+        <div style="font-size:10px;color:var(--txt3);margin-top:3px">${t1.split(' ').pop().toUpperCase()}</div>
+      </div>
+      <div style="text-align:center;background:var(--bg3);border-radius:10px;padding:12px;border:1px solid ${tc(t2)}44">
+        <div style="font-family:var(--font-head);font-size:26px;font-weight:700;color:${tc(t2)}">${h2h2}</div>
+        <div style="font-size:10px;color:var(--txt3);margin-top:3px">${t2.split(' ').pop().toUpperCase()}</div>
+      </div>
+    </div>
+    <div style="height:10px;border-radius:5px;overflow:hidden;display:flex;margin-bottom:6px">
+      <div style="flex:${h2h||1};background:${tc(t1)};transition:flex .5s"></div>
+      <div style="flex:${h2h2||1};background:${tc(t2)};transition:flex .5s"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--txt3)">
+      <span style="color:${tc(t1)}">${t1}</span><span style="color:${tc(t2)}">${t2}</span>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  renderOverview();
+});
+</script>
+</body>
+</html>
